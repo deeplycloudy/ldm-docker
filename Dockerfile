@@ -108,6 +108,11 @@ RUN chmod +x $HOME/bin/runldm.sh
 COPY README.md $HOME/
 
 ##
+# Copy in script to poll for GLM grid file and insert in queue
+##
+COPY ldm_insert.py $HOME/
+
+##
 # entrypoint
 ##
 

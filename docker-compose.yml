@@ -1,13 +1,16 @@
 version: '3'
 
-services:
+# Start with
+#     `docker-compose up -d ldm glmtest`
 
+services:
   ###
   # LDM
   ###
   ldm:
-    image: unidata/ldm-docker:6.13.6
-    container_name: ldm
+    image: ldm-glm
+      #unidata/ldm-docker:6.13.6
+    container_name: ldm-prod
     # restart: always
     volumes:
       # change defaults to your liking
@@ -17,6 +20,8 @@ services:
       - ./logs/:/home/ldm/var/logs/
       - ./cron/:/var/spool/cron/
       - ./data/:/data/
+      - /archive/GLM/GLM-L2-GRID_G16/:/glm_grid_data
+      - /archive/GLM/GLM-L2-GRIDRELAMPAGO_G16/:/glm_grid_relampago
     ports:
       - "388:388"
     ulimits:
@@ -25,3 +30,27 @@ services:
         hard: 1024
     env_file:
       - "compose.env"
+  glmtest:
+    image: glmtest
+    container_name: glm-conus
+    volumes:
+      - /archive/GLM/GLM-L2-LCFA_G16:/glm_raw_data
+      - /archive/GLM/GLM-L2-GRID_G16:/glm_grid_data
+    # like run -it, so it stays up
+    stdin_open: true
+    tty: true  
+    entrypoint:
+      - /bin/bash
+    #   - /home/glm/aws_realtime/run.sh
+  glmrelampago:
+    image: glmrelampago
+    container_name: glm-relampago
+    volumes:
+      - /archive/GLM/GLM-L2-LCFA_G16:/glm_raw_data
+      - /archive/GLM/GLM-L2-GRIDRELAMPAGO_G16:/glm_grid_data
+    # like run -it, so it stays up
+    stdin_open: true
+    tty: true  
+    entrypoint:
+      - /bin/bash
+    #   - /home/glm/aws_realtime/run.sh

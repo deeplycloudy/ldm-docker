@@ -53,3 +53,7 @@ Which should show the ldm-glm, glmtest, and glmrelampago images running with NAM
 
 You can enter the running LDM container with
     `docker exec -it ldm-prod bash`
+    
+#### Restarting
+docker-compose up --force-recreate --build -d
+docker image prune -f

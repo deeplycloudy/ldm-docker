@@ -21,7 +21,7 @@ services:
       - ./cron/:/var/spool/cron/
       - ./data/:/data/
       - /archive/GLM/GLM-L2-GRID_G16/:/glm_grid_data
-      - /archive/GLM/GLM-L2-GRIDRELAMPAGO_G16/:/glm_grid_relampago
+      # - /archive/GLM/GLM-L2-GRIDRELAMPAGO_G16/:/glm_grid_relampago
     ports:
       - "388:388"
     ulimits:
@@ -36,22 +36,23 @@ services:
     volumes:
       - /archive/GLM/GLM-L2-LCFA_G16:/glm_raw_data
       - /archive/GLM/GLM-L2-GRID_G16:/glm_grid_data
+      - /archive/GLM/GLM-L2-IMGSCONUS_G16:/glm_plots
     # like run -it, so it stays up
     stdin_open: true
     tty: true  
     entrypoint:
       - /bin/bash
     #   - /home/glm/aws_realtime/run.sh
-  glmrelampago:
-    image: glmrelampago
-    container_name: glm-relampago
-    volumes:
-      - /archive/GLM/GLM-L2-LCFA_G16:/glm_raw_data
-      - /archive/GLM/GLM-L2-GRIDRELAMPAGO_G16:/glm_grid_data
-      - /archive/GLM/GLM-L2-IMGSRELAMPAGO_G16:/glm_plots
-    # like run -it, so it stays up
-    stdin_open: true
-    tty: true  
-    entrypoint:
-      - /bin/bash
+  # glmrelampago:
+  #   image: glmrelampago
+  #   container_name: glm-relampago
+  #   volumes:
+  #     - /archive/GLM/GLM-L2-LCFA_G16:/glm_raw_data
+  #     - /archive/GLM/GLM-L2-GRIDRELAMPAGO_G16:/glm_grid_data
+  #     - /archive/GLM/GLM-L2-IMGSRELAMPAGO_G16:/glm_plots
+  #   # like run -it, so it stays up
+  #   stdin_open: true
+  #   tty: true
+  #   entrypoint:
+  #     - /bin/bash
     #   - /home/glm/aws_realtime/run.sh

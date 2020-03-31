@@ -55,5 +55,10 @@ You can enter the running LDM container with
     `docker exec -it ldm-prod bash`
     
 #### Restarting
+To force rebuild of the glmtools image, change to the glmtools-docker
+directory and run
+docker build --no-cache -t glmtest .
+
+Otherwise,
 docker-compose up --force-recreate --build -d
 docker image prune -f

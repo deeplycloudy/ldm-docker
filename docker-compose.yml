@@ -9,8 +9,9 @@ services:
   ###
   ldm:
     image: ldm-glm
-      #unidata/ldm-docker:6.13.6
     container_name: ldm-prod
+    container_name: ldm
+    # image: unidata/ldm-docker:6.13.11
     # restart: always
     volumes:
       # change defaults to your liking

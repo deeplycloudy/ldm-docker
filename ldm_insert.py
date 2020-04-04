@@ -21,21 +21,25 @@ def pqinsert(filename, container='ldm-prod'):
     output = subprocess.check_output(pqcommand, stderr=subprocess.STDOUT)
     # return output
 
-def await_grid(grid_dir, scene_id, action):
-    # Fetch the previous minute of data. Get one minute ago, and then round down
-    # to the nearest minute
-    dt1min = timedelta(0, 60)
-    lastmin = datetime.now() - dt1min
+def get_the_time(now, duration=60, minutes_to_try=5):
+    # Fetch data begginning with datetime *now* and ending with
+    # duration seconds later
+    dt1min = timedelta(0, duration)
+    lastmin = now
     startdate = datetime(lastmin.year, lastmin.month, lastmin.day, 
                           lastmin.hour, lastmin.minute)
     enddate = startdate + dt1min
     
     # at most, wait a few minutes for the full minute to be available
-    dropdead = lastmin + dt1min*5
+    dropdead = lastmin + dt1min*minutes_to_try
+
+    return startdate, enddate, dropdead
+
+def await_grid(grid_dir, scene_id, date, platform, action):
+    startdate, enddate, dropdead = get_the_time(date, duration=60)
     
     mode='M3'
-    platform='G16'
-    
+        
     grid_path = os.path.join(grid_dir, startdate.strftime('%Y/%b/%d'))
     # "OR_GLM-L2-GLMC-M3_G16_s20181011100000_e20181011101000_c20181011124580.nc 
     # Won't know file created time.
@@ -43,7 +47,7 @@ def await_grid(grid_dir, scene_id, action):
         mode, platform, startdate.strftime('%Y%j%H%M%S0'),
         enddate.strftime('%Y%j%H%M%S0'), scene_id)
     expected_file = os.path.join(grid_path, dataset_name)
-
+    print(expected_file)
     while True:
         grid_files = glob.glob(expected_file)
         results = []
@@ -62,8 +66,8 @@ def await_grid(grid_dir, scene_id, action):
             sleep(2)
             continue
 
-parse_desc = """ Watch for a GLM grid corresponding to the minute of data before
-present, and insert it into the LDM Docker queue"""
+parse_desc = """ Wait for a 1 minute GLM grid corresponding to a certain date,
+ scene, and platform, and insert it into the LDM queue"""
 
 def create_parser():
     parser = argparse.ArgumentParser(description=parse_desc)
@@ -71,13 +75,28 @@ def create_parser():
         required=True, dest='grid_dir', action='store',
         help="Gridded data will be saved to this directory, in subdirectories" 
              "like /2018/Jul/04/")
+    parser.add_argument('-d', '--date', metavar='%Y-%m-%dT%H:%M:%SZ',
+        required=True, dest='date', action='store',
+        help="Download data at this time (UTC)")
     parser.add_argument('-c', '--scene', dest='scene', action='store',
         default='C',
         help="One of C, M1, M2, or F, matching the scene ID part of the"
              " filename")
+    parser.add_argument('-s', '--satellite', metavar='GOES platform string',
+        required=True, dest='satellite', action='store',
+        help="goes16, goes17, etc.")
     return parser
 
 if __name__ == '__main__':
     parser = create_parser()
     args = parser.parse_args()
-    print(await_grid(args.grid_dir, args.scene, pqinsert))
+    
+    scene_code_names= {'C':'conus', 'F':'full'}
+    satellite_positions = {'goes16':'east', 'goes17':'west'}
+    satellite_platform_filename_code = {'goes16':'G16', 'goes17':'G17'}
+    
+    platform=satellite_platform_filename_code[args.satellite]
+    date = datetime.strptime(args.date, '%Y-%m-%dT%H:%M:%SZ')
+    
+    res = await_grid(args.grid_dir, args.scene, date, platform, pqinsert)
+    print(res)

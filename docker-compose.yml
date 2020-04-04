@@ -10,7 +10,6 @@ services:
   ldm:
     image: ldm-glm
     container_name: ldm-prod
-    container_name: ldm
     # image: unidata/ldm-docker:6.13.11
     # restart: always
     volumes:
@@ -20,7 +19,6 @@ services:
       - ./queues:/home/ldm/var/queues/
       - ./logs/:/home/ldm/var/logs/
       - ./cron/:/var/spool/cron/
-      - ./data/:/data/
       # - /archive/GLM/GLM-L2-GRID_G16/:/glm_grid_data
       # - /archive/GLM/GLM-L2-GRIDRELAMPAGO_G16/:/glm_grid_relampago
     ports:
@@ -31,25 +29,25 @@ services:
         hard: 1024
     env_file:
       - "compose.env"
-  glmtest:
+  glm-16:
     image: glmtest
     container_name: glm-16
     volumes:
-      - ./data/GLM-L2-LCFA_G16:/glm_raw_data
-      - ./data/GLM-L2-GRID_G16:/glm_grid_data
-      - ./data/GLM-L2-IMGSCONUS_G16:/glm_plots
+      - ./data/GLM-L2-LCFA_G16/:/glm_raw_data
+      - ./data/GLM-L2-GRID_G16/:/glm_grid_data
+      - ./data/GLM-L2-IMGSCONUS_G16/:/glm_plots
     # like run -it, so it stays up
     stdin_open: true
     tty: true  
     entrypoint:
       - /bin/bash
-  glmtest:
+  glm-17:
     image: glmtest
     container_name: glm-17
     volumes:
-      - ./data/GLM-L2-LCFA_G17:/glm_raw_data
-      - ./data/GLM-L2-GRID_G17:/glm_grid_data
-      - ./data/GLM-L2-IMGSCONUS_G17:/glm_plots
+      - ./data/GLM-L2-LCFA_G17/:/glm_raw_data
+      - ./data/GLM-L2-GRID_G17/:/glm_grid_data
+      - ./data/GLM-L2-IMGSCONUS_G17/:/glm_plots
     # like run -it, so it stays up
     stdin_open: true
     tty: true  

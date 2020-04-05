@@ -7,7 +7,10 @@ from time import sleep
 
 def pqinsert(filename, container='ldm-prod'):
     
-    pqcommand = ["pqinsert",  filename]
+    pqcommand = ["pqinsert", "-v",
+                 "-l", "/home/ldm/var/logs/pqinsert.log",
+                 filename]
+    # -l logs the pqinsert
     # can also pqinsert with -p to custom-eliminate the whole path
     # -p productID  Assert product-ID as <productID>. Default is the
     #               filename. With multiple files, product-ID becomes

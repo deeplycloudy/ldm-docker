@@ -14,7 +14,7 @@ RUN yum -y update yum
 
 RUN yum install -y wget pax gcc libxml2-devel make libpng-devel rsyslog perl \
     zlib-devel bzip2 git curl sudo cronie bc net-tools man gnuplot tcl \
-    libstdc++-static
+    libstdc++-static python3
 
 ###
 # gosu is a non-optimal way to deal with the mismatches between Unix user and

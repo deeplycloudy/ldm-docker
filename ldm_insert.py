@@ -1,25 +1,28 @@
-import os
+import os, pathlib
 import subprocess
 import glob
 import argparse
 from datetime import datetime, timedelta
 from time import sleep
 
-def pqinsert(filename, container='ldm-prod'):
+def pqinsert(filename, container='ldm-prod', prodid=None):
     
     pqcommand = ["pqinsert", "-v",
-                 "-l", "/home/ldm/var/logs/pqinsert.log",
-                 filename]
+                 "-l", "/home/ldm/var/logs/pqinsert.log",]
+
+    if prodid is not None:
+        pqcommand += ['-p', prodid]
+
+    pqcommand += [filename]
     # -l logs the pqinsert
     # can also pqinsert with -p to custom-eliminate the whole path
     # -p productID  Assert product-ID as <productID>. Default is the
     #               filename. With multiple files, product-ID becomes
     #               <productID>.<seqno>
 
-    
     # run command on docker (add -it for interactive)
     # command = "docker exec -d {0} {1}".format(container, pqcommand)
-        
+
     print(pqcommand)
     output = subprocess.check_output(pqcommand, stderr=subprocess.STDOUT)
     # return output
@@ -57,7 +60,10 @@ def await_grid(grid_dir, scene_id, date, platform, action):
         if len(grid_files) > 0:
             # sleep(1) # mysterious wait lets file write complete
             for gf in grid_files:
-                result = action(gf)
+                p = pathlib.Path(gf)
+                prodpath = (p.parts[0:1] + ('glm_grid_data',) + p.parts[-4:])
+                prodid = str(pathlib.PosixPath(*prodpath))
+                result = action(gf,prodid=prodid)
                 results.append(result)
             return results
         elif datetime.now() > dropdead:
